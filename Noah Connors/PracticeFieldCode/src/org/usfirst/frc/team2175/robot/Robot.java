@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2175.robot;
 
 import com.ctre.CANTalon;
+import com.ctre.CANTalon.TalonControlMode;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
@@ -31,7 +32,6 @@ public class Robot extends IterativeRobot {
 	RobotDrive drive;
 	Joystick leftJoystick;
 	Joystick rightJoystick;
-	Joystick gamepad;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -42,6 +42,25 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
+		leftDriveMaster = new CANTalon(0);
+		leftDriveSlave1 = new CANTalon(1);
+		leftDriveSlave2 = new CANTalon(2);
+		rightDriveMaster = new CANTalon(3);
+		rightDriveSlave1 = new CANTalon(4);
+		rightDriveSlave1 = new CANTalon(5);
+		setSlave(leftDriveSlave1, leftDriveMaster);
+		setSlave(leftDriveSlave2, leftDriveMaster);
+		setSlave(rightDriveSlave1, rightDriveMaster);
+		setSlave(rightDriveSlave2, rightDriveMaster);
+		shifter = new Solenoid(0);
+		drive = new RobotDrive(leftDriveMaster, rightDriveMaster);
+		leftJoystick = new Joystick(0);
+		rightJoystick = new Joystick(1);
+	}
+	
+	private void setSlave(CANTalon slave, CANTalon master) {
+		slave.changeControlMode(TalonControlMode.Follower);
+		slave.set(master.getDeviceID());
 	}
 
 	/**
@@ -84,6 +103,12 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		drive.arcadeDrive(leftJoystick.getY(), rightJoystick.getX());
+		if(leftJoystick.getRawButton(1)) {
+			shifter.set(true);
+		} else {
+			shifter.set(false);
+		}
 	}
 
 	/**
